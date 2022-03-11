@@ -1,4 +1,4 @@
-[![PyPI version](https://badge.fury.io/py/django-simple-stats.svg)](https://badge.fury.io/py/django-simple-stats)
+https://badge.fury.io/py/django-simple-stats.svg)](https://badge.fury.io/py/django-simple-stats
 
 django-simple-stats
 -------------------
