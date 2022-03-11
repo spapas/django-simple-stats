@@ -101,17 +101,43 @@ You can display this in your template using something like:
 Usage
 =====
 
-The only supported method is the ``get_stats``. It expects a django query and a configuration list. Each element of the configuration list is a dictionary with the following attributes:
+The only supported method is the ``get_stats``. It expects a django query and a configuration list. 
+Each element of the configuration list is a dictionary with the following attributes:
 
 * label (required): The textual description of this statistic
 * kind (required): What kind of aggregate we need. Choices are: ``query_aggregate_single``, ``query_aggregate``, ``choice_aggregate``, ``query_aggregate_date``, ``query_aggregate_buckets``. 
 * method (required): The aggregate method. Can be one of ``count``, ``sum``, ``max``, ``min``, ``avg``.
 * field (required): The field that the aggreate will run on; use ``__`` for joins i.e ``fiedld1__field2``
-* what: Only required for ``query_aggregate_date``, it is eithed ``year``, ``month``, ``day``
-* choices: Only required for ``choice_aggregate``, it must be a django choices list 
-* buckets: only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
+* what (optional): Only required for ``query_aggregate_date``, it is eithed ``year``, ``month``, ``day``
+* choices (optional): Only required for ``choice_aggregate``, it must be a django choices list 
+* buckets (optional): only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
 
 See above for a configuration example.
+
+The response will be a list of dictionaries with the following attributes:
+
+* label: Same as the label in the configuration
+* value: Will have a value if you use the query_aggregate_single, else will be None 
+* values: Will be empty for query_aggregate_single else will be a list of tuples. Each tuple will have two elements, ``(label, value)``
+
+The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total 
+number of rows of your query or the sum of all fields. 
+
+The ``query_aggregate`` will run the aggregate function on a 
+field and return the list of values. This is mainly useful for foreign keys and if you've got distinct values in your queries.
+For example count the number of rows per user. 
+Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
+
+The ``choice_aggregate`` is similar to the ``query_aggregate`` but will use a ``choices`` attribute to return better looking values.
+
+The ``query_aggregate_date`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use
+``what`` to pass ``year``, ``month``, ``day``.
+
+Finally, the ``query_aggregate_buckets`` is used to create buckets of values. You'll pass the list of buckets and the query will 
+return the results that belong in each bucket. The stats module will 
+run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price``
+it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
+
 
 
 
