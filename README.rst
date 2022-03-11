@@ -1,5 +1,6 @@
-https://badge.fury.io/py/django-simple-stats.svg)](https://badge.fury.io/py/django-simple-stats
-
+.. image:: https://badge.fury.io/py/django-simple-stats.svg
+    :target: https://badge.fury.io/py/django-simple-stats
+    
 django-simple-stats
 -------------------
 
