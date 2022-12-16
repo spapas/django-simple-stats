@@ -150,6 +150,7 @@ You can display this in your template using something like:
 Changelog
 =========
 
+* v.0.3.1: Fix small bug with ``choice_aggregate_with_null``
 * v.0.3.0: Add ``choice_aggregate_with_null`` and throw if stat kind is not found
 * v.0.2.1: Fix small bug with column aliases
 * v.0.2.0: Changed API; use ``query_aggregate_datetime`` for a datetime field and ``query_aggregate_date`` for a date field

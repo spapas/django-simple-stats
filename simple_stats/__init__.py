@@ -54,10 +54,11 @@ def get_stats(qs, cfg):
             ]
 
         elif c["kind"] in ["choice_aggregate", "choice_aggregate_with_null"]:
+            
             values = [
                 (get_choice_label(c["choices"], x[field]), x["aggr"])
                 for x in qs.values(field)
-                .annotate(aggr=aggr_function(field))
+                .annotate(aggr=aggr_function(field if c['kind']=='choice_aggregate' else 'pk'))
                 .distinct()
                 .order_by(("-aggr"))
                 if c['kind'] == "choice_aggregate_with_null" or x.get(field) != None
