@@ -45,25 +45,17 @@ The response will be a list of dictionaries with the following attributes:
 Stat kinds
 ==========
 
-* The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total 
-number of rows of your query or the sum of all fields. 
+* The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total  number of rows of your query or the sum of all fields. 
 
-* The ``query_aggregate`` will run the aggregate function on a 
-field and return the list of values. This is mainly useful for foreign keys and if you've got distinct values in your queries.
-For example count the number of rows per user. 
-Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
+* The ``query_aggregate`` will run the aggregate function on a field and return the list of values. This is mainly useful for foreign keys and if you've got distinct values in your queries. For example count the number of rows per user. Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
 
 * The ``choice_aggregate`` is similar to the ``query_aggregate`` but will use a ``choices`` attribute to return better looking values. This will not return Null values
 
 * The ``choice_aggregate_with_null`` is the same as ``choice_aggregate`` but will return Null values (so you can add a ``(None, "Empty")`` choice to your choices)
 
-* The ``query_aggregate_date`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use
-``what`` to pass ``year``, ``month``, ``day``.
+* The ``query_aggregate_date`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use ``what`` to pass ``year``, ``month``, ``day``.
 
-* Finally, the ``query_aggregate_buckets`` is used to create buckets of values. You'll pass the list of buckets and the query will 
-return the results that belong in each bucket. The stats module will 
-run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price``
-it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
+* Finally, the ``query_aggregate_buckets`` is used to create buckets of values. You'll pass the list of buckets and the query will  return the results that belong in each bucket. The stats module will run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price`` it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
 
 Example
 =======
