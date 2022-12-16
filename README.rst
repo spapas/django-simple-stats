@@ -42,20 +42,25 @@ The response will be a list of dictionaries with the following attributes:
 * value: Will have a value if you use the query_aggregate_single, else will be None 
 * values: Will be empty for query_aggregate_single else will be a list of tuples. Each tuple will have two elements, ``(label, value)``
 
-The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total 
+Stat kinds
+==========
+
+* The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total 
 number of rows of your query or the sum of all fields. 
 
-The ``query_aggregate`` will run the aggregate function on a 
+* The ``query_aggregate`` will run the aggregate function on a 
 field and return the list of values. This is mainly useful for foreign keys and if you've got distinct values in your queries.
 For example count the number of rows per user. 
 Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
 
-The ``choice_aggregate`` is similar to the ``query_aggregate`` but will use a ``choices`` attribute to return better looking values.
+* The ``choice_aggregate`` is similar to the ``query_aggregate`` but will use a ``choices`` attribute to return better looking values. This will not return Null values
 
-The ``query_aggregate_date`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use
+* The ``choice_aggregate_with_null`` is the same as ``choice_aggregate`` but will return Null values (so you can add a ``(None, "Empty")`` choice to your choices)
+
+* The ``query_aggregate_date`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use
 ``what`` to pass ``year``, ``month``, ``day``.
 
-Finally, the ``query_aggregate_buckets`` is used to create buckets of values. You'll pass the list of buckets and the query will 
+* Finally, the ``query_aggregate_buckets`` is used to create buckets of values. You'll pass the list of buckets and the query will 
 return the results that belong in each bucket. The stats module will 
 run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price``
 it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
@@ -153,6 +158,7 @@ You can display this in your template using something like:
 Changelog
 =========
 
+* v.0.3.0: Add ``choice_aggregate_with_null`` and throw if stat kind is not found
 * v.0.2.1: Fix small bug with column aliases
-* v.0.2.0: Changed API; use `query_aggregate_datetime` for a datetime field and `query_aggregate_date` for a date field
+* v.0.2.0: Changed API; use ``query_aggregate_datetime`` for a datetime field and ``query_aggregate_date`` for a date field
 * v.0.1.0: Initial version

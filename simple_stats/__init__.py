@@ -53,15 +53,16 @@ def get_stats(qs, cfg):
                 .order_by("aggr")
             ]
 
-        elif c["kind"] == "choice_aggregate":
+        elif c["kind"] in ["choice_aggregate", "choice_aggregate_with_null"]:
             values = [
                 (get_choice_label(c["choices"], x[field]), x["aggr"])
                 for x in qs.values(field)
                 .annotate(aggr=aggr_function(field))
                 .distinct()
                 .order_by(("-aggr"))
-                if x.get(field) != None
+                if c['kind'] == "choice_aggregate_with_null" or x.get(field) != None
             ]
+
         elif c["kind"] == "query_aggregate_buckets":
             buckets = c["buckets"]
             params = {
@@ -73,6 +74,9 @@ def get_stats(qs, cfg):
 
         elif c["kind"] == "query_aggregate_single":
             value = qs.aggregate(aggr=aggr_function(field))["aggr"]
+        
+        else:
+            raise NotImplementedError("unknown stat kind {}".format(c["kind"]))
 
         stat = {
             "label": c["label"],
