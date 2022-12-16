@@ -1,4 +1,4 @@
-from django.db.models import Count, Sum, Avg, Min, Max, DateTimeField, When, Case, Q
+from django.db.models import Count, Sum, Avg, Min, Max, DateField, DateTimeField, When, Case, Q
 from django.db.models.functions import (
     Trunc,
 )
@@ -41,11 +41,12 @@ def get_stats(qs, cfg):
                 .order_by("-aggr")
                 if z.get(field) != None
             ]
-        elif c["kind"] == "query_aggregate_date":
+        elif c["kind"] in ("query_aggregate_date", "query_aggregate_datetime"):
+            output_field_cls = DateTimeField if c["kind"] == "query_aggregate_datetime" else DateField
             values = [
                 (getattr(z["aggr"], c["what"]), z["aggr2"])
                 for z in qs.annotate(
-                    aggr=Trunc(field, c["what"], output_field=DateTimeField())
+                    aggr=Trunc(field, c["what"], output_field=output_field_cls())
                 )
                 .values("aggr")
                 .annotate(aggr2=aggr_function(field))
