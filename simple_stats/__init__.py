@@ -65,7 +65,7 @@ def get_stats(qs, cfg):
         elif c["kind"] == "query_aggregate_buckets":
             buckets = c["buckets"]
             params = {
-                "> " + str(b): aggr_function("pk", filter=Q(**{field + "__gte": b}))
+                ">" + str(b): aggr_function("pk", filter=Q(**{field + "__gte": b}))
                 for b in buckets
             }
 

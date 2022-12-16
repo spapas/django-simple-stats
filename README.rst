@@ -153,5 +153,6 @@ You can display this in your template using something like:
 Changelog
 =========
 
+* v.0.2.1: Fix small bug with column aliases
 * v.0.2.0: Changed API; use `query_aggregate_datetime` for a datetime field and `query_aggregate_date` for a date field
 * v.0.1.0: Initial version
