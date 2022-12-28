@@ -143,9 +143,45 @@ You can display this in your template using something like:
     {% endfor %}
   </div>
 
+Exporting the stats
+===================
 
+You can easily export these stats in xls using the xlwt (https://pypi.org/project/xlwt/) library and this function:
 
+.. code-block:: python
 
+    import xlwt
+    
+    def create_xls_resp(stats, response):
+        context = self.get_context_data()
+        import xlwt
+        wb = xlwt.Workbook(encoding="utf-8")
+        for stat in stats:
+            ws = wb.add_sheet(stat["label"][:31])
+            ws.write(0,0,stat["label"], xlwt.easyxf('font: name Calibri, bold on', ))
+            if stat["value"]:
+                ws.write(0,1,stat["value"], xlwt.easyxf('font: name Calibri, bold on', ))
+
+            for i, val in enumerate(stat["values"], start=2):
+                for j,v in enumerate(val, start=0):
+                    ws.write(i,j,v)
+        wb.save(response)
+
+Now you can call it like this from your view:
+
+.. code-block:: python
+
+    from django.http import HttpResponse
+
+    def my_export_view(request):
+        qs = TestModel.objects.all()
+
+        stats = get_stats(qs, STATS_CFG)
+        response = HttpResponse(content_type="application/ms-excel")
+        response["Content-Disposition"] = "attachment; filename=export.xls"
+        create_xls_resp(response)
+        return response
+            
 
 Changelog
 =========
