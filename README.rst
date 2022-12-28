@@ -27,12 +27,13 @@ The only supported method is the ``get_stats``. It expects a django query and a 
 Each element of the configuration list is a dictionary with the following attributes:
 
 * label (required): The textual description of this statistic
-* kind (required): What kind of aggregate we need. Choices are: ``query_aggregate_single``, ``query_aggregate``, ``choice_aggregate``, ``query_aggregate_date``, ``query_aggregate_buckets``. 
+* kind (required): What kind of aggregate we need. Choices are: ``query_aggregate_single``, ``query_aggregate``, ``choice_aggregate``, ``choice_aggregate_with_null``, ``query_aggregate_date``, ``query_aggregate_buckets``. 
 * method (required): The aggregate method. Can be one of ``count``, ``sum``, ``max``, ``min``, ``avg``.
 * field (required): The field that the aggreate will run on; use ``__`` for joins i.e ``fiedld1__field2``
 * what (optional): Only required for ``query_aggregate_date``, it is eithed ``year``, ``month``, ``day``
-* choices (optional): Only required for ``choice_aggregate``, it must be a django choices list 
+* choices (optional): Only required for ``choice_aggregate`` and ``choice_aggregate_with_null``, it must be a django choices list 
 * buckets (optional): only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
+* aggr_field (optional): this field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on.
 
 See below for a complete example.
 
@@ -47,7 +48,7 @@ Stat kinds
 
 * The ``query_aggregate_single`` will run the aggregate function on a field and return a single value. For example you can get the total  number of rows of your query or the sum of all fields. 
 
-* The ``query_aggregate`` will run the aggregate function on a field and return the list of values. This is mainly useful for foreign keys and if you've got distinct values in your queries. For example count the number of rows per user. Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
+* The ``query_aggregate`` will run the aggregate function on a field and return the list of values. You can run the aggregate function *on a different field* by passing ``aggr_field`` (so you can group by a field and return the sum of another field for each group). This is mainly useful for foreign keys and if you've got distinct values in your queries. For example count the number of rows per user. Also it is useful for booleans for example to get the number of rows that have a flag turned on and off. 
 
 * The ``choice_aggregate`` is similar to the ``query_aggregate`` but will use a ``choices`` attribute to return better looking values. This will not return Null values
 
@@ -72,11 +73,24 @@ Example
                 'field': 'id',
             },
             {
+                'label': 'Total price',
+                'kind': 'query_aggregate_single',
+                'method': 'sum',
+                'field': 'price',
+            },
+            {
                 'label': 'Per authority',
                 'kind': 'query_aggregate',
                 'method': 'count',
                 'field': 'pilot_authority__name',
-            }
+            },
+            {
+                'label': 'Per authority by price',
+                'kind': 'query_aggregate',
+                'method': 'count',
+                'field': 'pilot_authority__name',
+                'aggr_field': 'price',
+            },
             {
                 'label': 'Per status',
                 'kind': 'choice_aggregate',
@@ -85,12 +99,27 @@ Example
                 'choices': models.STATUS_CHOICES,
             },
             {
+                'label': 'Per status by price',
+                'kind': 'choice_aggregate',
+                'method': 'count',
+                'field': 'status',
+                'aggr_field': 'price',
+                'choices': models.STATUS_CHOICES,
+            },
+            {
                 'label': 'Per year',
                 'kind': 'query_aggregate_date',
                 'method': 'count',
                 'field': 'created_on',
                 'what': 'year',
-                
+            },
+            {
+                'label': 'Per year by price',
+                'kind': 'query_aggregate_date',
+                'method': 'count',
+                'field': 'created_on',
+                'what': 'year',
+                'aggr_field': 'price',
             },
             {
                 'label': 'Per price',
@@ -113,9 +142,13 @@ The ``stats`` will be an array of dictionaries like the following:
 
   [
     {'label': 'Total', 'values': [], 'value': 1216}, 
+    {'label': 'Total price', 'values': [], 'value': 323.16}, 
     {'label': 'Per authority', 'values': [('Authority 1', 200), ('Authority 2', 9),   ], 'value': None}, 
+    {'label': 'Per authority by price', 'values': [('Authority 1', 123.23), ('Authority 2', 42.12),   ], 'value': None}, 
     {'label': 'Per status', 'values': [('New', 200), ('Cancel', 0), 'value': None},
+    {'label': 'Per status by price', 'values': [('New', 32.01), ('Cancel', 44.23), 'value': None},
     {'label': 'Per year', 'values': [(2021, 582), (2022, 634)], 'value': None}
+    {'label': 'Per year by price', 'values': [(2021, 5.82), (2022, 6.34)], 'value': None}
     {'label': 'Per price', 'values': [('> 5000', 1), ('> 1000', 29), ('> 500', 86), ('> 0', 305)], 'value': None}
   ]
   
@@ -186,6 +219,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.4.0: Allow the aggregate function to run on a different field using ``aggr_field``
 * v.0.3.1: Fix small bug with ``choice_aggregate_with_null``
 * v.0.3.0: Add ``choice_aggregate_with_null`` and throw if stat kind is not found
 * v.0.2.1: Fix small bug with column aliases

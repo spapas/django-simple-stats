@@ -30,6 +30,7 @@ def get_stats(qs, cfg):
     for c in cfg:
         aggr_function = get_aggregate_function(c["method"])
         field = c["field"]
+        aggr_field = c.get("aggr_field") or field
         limit = c.get("limit")
         values = []
         value = None
@@ -37,7 +38,7 @@ def get_stats(qs, cfg):
             values = [
                 (z.get(field), z["aggr"])
                 for z in qs.values(field)
-                .annotate(aggr=aggr_function(field))
+                .annotate(aggr=aggr_function(aggr_field))
                 .order_by("-aggr")
                 if z.get(field) != None
             ]
@@ -49,7 +50,7 @@ def get_stats(qs, cfg):
                     aggr=Trunc(field, c["what"], output_field=output_field_cls())
                 )
                 .values("aggr")
-                .annotate(aggr2=aggr_function(field))
+                .annotate(aggr2=aggr_function(aggr_field))
                 .order_by("aggr")
             ]
 
@@ -58,7 +59,7 @@ def get_stats(qs, cfg):
             values = [
                 (get_choice_label(c["choices"], x[field]), x["aggr"])
                 for x in qs.values(field)
-                .annotate(aggr=aggr_function(field if c['kind']=='choice_aggregate' else 'pk'))
+                .annotate(aggr=aggr_function(aggr_field if c['kind']=='choice_aggregate' else 'pk'))
                 .distinct()
                 .order_by(("-aggr"))
                 if c['kind'] == "choice_aggregate_with_null" or x.get(field) != None
