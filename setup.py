@@ -7,7 +7,7 @@ def readme():
 
 setup(
     name='django-simple-stats',
-    version='0.4.0',
+    version='0.5.0',
     description="A django package for creating simple stats from a query",
     long_description=readme(),
     author='Serafeim Papastefanos',

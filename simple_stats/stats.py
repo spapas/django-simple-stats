@@ -41,7 +41,8 @@ def get_choice_label(choices, value):
 def get_stats(qs, cfg):
     r = []
     for c in cfg:
-        aggr_function = get_aggregate_function(c["method"])
+        method = c['method'] if 'method' in c and c['method'] else 'count'
+        aggr_function = get_aggregate_function(method)
         field = c["field"]
         aggr_field = c.get("aggr_field") or field
         limit = c.get("limit")
@@ -99,7 +100,7 @@ def get_stats(qs, cfg):
             raise NotImplementedError("unknown stat kind {}".format(c["kind"]))
 
         stat = {
-            "label": c["label"],
+            "label": c["label"] if 'label' in c and c['label'] else c['field'],
             "values": values[:limit] if limit else values,
             "value": value,
         }
@@ -107,11 +108,17 @@ def get_stats(qs, cfg):
     return r
 
 
-class StatsOptions:
-    def __init__(self, options, class_name):
-        super().__init__()
-        self.empty_text = getattr(options, "empty_text", None)
-        self.exclude = getattr(options, "exclude", [])
+STAT_ALLOWED_FIELDS = {
+    "choices",
+    "method",
+    "what",
+    "aggr_field",
+    "kind",
+    "field",
+    "limit",
+    "buckets",
+    "label",
+}
 
 
 class StatBase:
@@ -120,61 +127,67 @@ class StatBase:
     aggr_field = None
     limit = None
 
-    def __init__(self, field=None, label=None, method="count", **kwargs):
-        self.field = field
-        self.label = label
-        if not label:
-            self.label = self.field
-        self.method = method
+    def __init__(self, **kwargs):
+        for k in kwargs.keys():
+            if k not in STAT_ALLOWED_FIELDS:
+                raise ValueError("unknown stat field {}".format(k))
+
         for k, v in kwargs.items():
             setattr(self, k, v)
+        if not hasattr(self, "label"):
+            self.label = self.field
+        if not hasattr(self, "method"):
+            self.method = "count"
+
+    def to_dict(self):
+        return {k: getattr(self, k) for k in STAT_ALLOWED_FIELDS if hasattr(self, k)}
 
 
 class QueryAggregateStat(StatBase):
     kind = "query_aggregate"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
 
 class QueryAggregateSingleStat(StatBase):
     kind = "query_aggregate_single"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+
+class QueryAggregateDateStat(StatBase):
+    kind = "query_aggregate_date"
+
+
+class QueryAggregateBucketsStat(StatBase):
+    kind = "query_aggregate_buckets"
+
+
+class ChoiceAggregateStat(StatBase):
+    kind = "choice_aggregate"
+
+
+class ChoiceAggregateNullStat(StatBase):
+    kind = "choice_aggregate_with_null"
 
 
 class BoundStat:
     name = None
     stat = None
-    field = None
-    label = None
-    
 
     def __init__(self, name, stat):
         self.name = name
         self.stat = stat
-        if not self.stat.field:
-            self.stat.field = self.name
-        if not self.stat.label:
-            self.stat.label = self.name
 
     def to_dict(self):
-        return {
-            "name": self.name,
-            "label": self.stat.label,
-            "field": self.stat.field,
-            "method": self.stat.method,
-            "kind": self.stat.kind,
-            "aggr_field": self.stat.aggr_field,
-            "limit": self.stat.limit,
-        }
+        d = self.stat.to_dict()
+        d["name"] = self.name
+
+        if not d["label"]:
+            d["label"] = self.name
+        if not d["field"]:
+            d["field"] = self.name
+        return d
 
 
 class StatSetMetaclass(type):
     def __new__(mcs, name, bases, attrs):
-        attrs["_meta"] = opts = StatsOptions(attrs.get("Meta", None), name)
-
         stats = []
         for attr_name, attr in attrs.items():
             if isinstance(attr, StatBase):
@@ -186,13 +199,9 @@ class StatSetMetaclass(type):
         for base in reversed(bases):
             if hasattr(base, "base_stats"):
                 parent_stats = list(base.base_stats.items()) + parent_stats
-        print(parent_stats)
+
         base_stats = OrderedDict(parent_stats)
         base_stats.update(OrderedDict(stats))
-
-        for exclusion in opts.exclude:
-            if exclusion in base_stats:
-                base_stats.pop(exclusion)
 
         attrs["base_stats"] = base_stats
         attrs["bound_stats"] = [
@@ -208,9 +217,21 @@ class StatSet(metaclass=StatSetMetaclass):
         if data is None:
             raise TypeError(f"Argument data to {type(self).__name__} is required")
 
-        self.stats = copy.deepcopy(type(self).bound_stats)
+        self.stats = self.bound_stats
         self.data = data
 
     def get_stats(self):
         stats_cfg = [s.to_dict() for s in self.stats]
         return get_stats(self.data, stats_cfg)
+
+    def __iter__(self):
+        self._istats = self.get_stats()
+        self._iidx = 0
+        self._imax = len(self._istats)
+        return self
+
+    def __next__(self):
+        if self._iidx < self._imax:
+            self._iidx += 1
+            return self._istats[self._iidx - 1]
+        raise StopIteration
