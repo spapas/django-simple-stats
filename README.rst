@@ -5,8 +5,10 @@ django-simple-stats
 -------------------
 
 A django package for creating stats from a query. 
+This package should be compatible with all 
+Django versions > 3.x
 
-installation
+Installation
 ============
 
 Install it from pip:
@@ -93,6 +95,9 @@ function so in both cases the result will be exactly the same.
 Example declarative
 ===================
 
+Please remember in the example below that if you don't pass the ``field`` parameter then the name of the 
+attribute will be used. Also by default the ``method`` is ``count``.
+
 .. code-block:: python
 
     from simple_stats import from simple_stats import (
@@ -121,7 +126,7 @@ Example declarative
         stats = MyStats(qs)
         return render(request, 'my_template.html', {'stats': stats})
 
-the ``statss` result will be an enumerable with the following structure:
+the ``stats`` result will be an enumerable similar to this one:
 
 .. code-block:: python
 
@@ -130,15 +135,15 @@ the ``statss` result will be an enumerable with the following structure:
     {'label': 'Total price', 'values': [], 'value': 323.16}, 
     {'label': 'Per authority', 'values': [('Authority 1', 200), ('Authority 2', 9),   ], 'value': None}, 
     {'label': 'Per authority by price', 'values': [('Authority 1', 123.23), ('Authority 2', 42.12),   ], 'value': None}, 
-    {'label': 'Per status', 'values': [('New', 200), ('Cancel', 0), 'value': None},
-    {'label': 'Per status by price', 'values': [('New', 32.01), ('Cancel', 44.23), 'value': None},
+    {'label': 'Per status', 'values': [('New', 200), ('Cancel', 0)], 'value': None},
+    {'label': 'Per status by price', 'values': [('New', 32.01), ('Cancel', 44.23)], 'value': None},
     {'label': 'Per year', 'values': [(2021, 582), (2022, 634)], 'value': None}
     {'label': 'Per year by price', 'values': [(2021, 5.82), (2022, 6.34)], 'value': None}
     {'label': 'Per price', 'values': [('> 5000', 1), ('> 1000', 29), ('> 500', 86), ('> 0', 305)], 'value': None}
   ]
 
   
-You can display this in your template using something like (using bootstrap):
+You can display this in your template using something like this (using bootstrap):
 
 .. code-block:: html
 
@@ -172,64 +177,48 @@ Example functional
 
     STATS_CFG = cfg = [
             {
+                'kind': 'query_aggregate_single',
                 'label': 'Total',
-                'kind': 'query_aggregate_single',
-                'method': 'count',
                 'field': 'id',
-            },
-            {
-                'label': 'Total price',
+            }, {
                 'kind': 'query_aggregate_single',
+                'label': 'Total price',
                 'method': 'sum',
                 'field': 'price',
-            },
-            {
+            }, {
+                'kind': 'query_aggregate',
                 'label': 'Per authority',
-                'kind': 'query_aggregate',
-                'method': 'count',
                 'field': 'pilot_authority__name',
-            },
-            {
+            }, {
+                'kind': 'query_aggregate',
                 'label': 'Per authority by price',
-                'kind': 'query_aggregate',
-                'method': 'count',
                 'field': 'pilot_authority__name',
                 'aggr_field': 'price',
-            },
-            {
+            }, {
+                'kind': 'choice_aggregate',
                 'label': 'Per status',
-                'kind': 'choice_aggregate',
-                'method': 'count',
                 'field': 'status',
                 'choices': models.STATUS_CHOICES,
-            },
-            {
+            }, {
+                'kind': 'choice_aggregate',
                 'label': 'Per status by price',
-                'kind': 'choice_aggregate',
-                'method': 'count',
                 'field': 'status',
                 'aggr_field': 'price',
                 'choices': models.STATUS_CHOICES,
-            },
-            {
-                'label': 'Per year',
+            }, {
                 'kind': 'query_aggregate_date',
-                'method': 'count',
+                'label': 'Per year',
                 'field': 'created_on',
                 'what': 'year',
-            },
-            {
-                'label': 'Per year by price',
+            }, {
                 'kind': 'query_aggregate_date',
-                'method': 'count',
+                'label': 'Per year by price',
                 'field': 'created_on',
                 'what': 'year',
                 'aggr_field': 'price',
-            },
-            {
-                'label': 'Per price',
+            }, {
                 'kind': 'query_aggregate_buckets',
-                'method': 'count',
+                'label': 'Per price',
                 'field': 'price',
                 'buckets': [100_00, 50_00, 1_000, 500, 0]
             }
