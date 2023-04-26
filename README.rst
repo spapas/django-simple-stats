@@ -64,8 +64,9 @@ The stats classes take the following initialization parameters:
 * method (optional): The aggregate method. Can be one of ``count``, ``sum``, ``max``, ``min``, ``avg``. Default is count
 * what (optional): Only required for ``query_aggregate_date``, it is eithed ``year``, ``month``, ``day``
 * choices (optional): Only required for ``choice_aggregate`` and ``choice_aggregate_with_null``, it must be a django choices list 
-* buckets (optional): only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
-* aggr_field (optional): this field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on.
+* buckets (optional): Only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
+* aggr_field (optional): This field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on.
+* formatter (optional): A callback that can be used to format the value, it should get a value and return a rendered value (i.e ``lambda v: "${}".format(v)``)
 
 Please notice that if you don't pass the ``field`` parameter then the name of the attribute will be used (i.e. it will be 
 ``field=id`` in the example above).
@@ -115,7 +116,13 @@ attribute will be used. Also by default the ``method`` is ``count``.
         pilot_authority__name = QueryAggregateStat(label='Per authority')
         pilot_authority__name = QueryAggregateStat(label='Per authority by price', aggr_field='price')
         status = ChoiceAggregateStat(label='Per status', choices=MyModel.STATUS_CHOICES)
-        status_price = ChoiceAggregateStat(label='Per status by price', choices=MyModel.STATUS_CHOICES, field='status', aggr_field='price')
+        status_price = ChoiceAggregateStat(
+            label='Per status by price', 
+            choices=MyModel.STATUS_CHOICES, 
+            field='status', 
+            aggr_field='price'
+            formatter=lambda v: "€ {}".format(v) if v else '-'
+        )
         year = QueryAggregateDateStat(label='Per year', what='year', field='created_on')
         year_price = QueryAggregateDateStat(label='Per year by price', what='year', aggr_field='price', field='created_on')
         buckets = QueryAggregateBucketsStat(label='Buckets', buckets=[100, 50, 10])
@@ -136,7 +143,7 @@ the ``stats`` result will be an enumerable similar to this one:
     {'label': 'Per authority', 'values': [('Authority 1', 200), ('Authority 2', 9),   ], 'value': None}, 
     {'label': 'Per authority by price', 'values': [('Authority 1', 123.23), ('Authority 2', 42.12),   ], 'value': None}, 
     {'label': 'Per status', 'values': [('New', 200), ('Cancel', 0)], 'value': None},
-    {'label': 'Per status by price', 'values': [('New', 32.01), ('Cancel', 44.23)], 'value': None},
+    {'label': 'Per status by price', 'values': [('New', '€ 32.01'), ('Cancel', '€ 44.23')], 'value': None},
     {'label': 'Per year', 'values': [(2021, 582), (2022, 634)], 'value': None}
     {'label': 'Per year by price', 'values': [(2021, 5.82), (2022, 6.34)], 'value': None}
     {'label': 'Per price', 'values': [('> 5000', 1), ('> 1000', 29), ('> 500', 86), ('> 0', 305)], 'value': None}
@@ -194,6 +201,7 @@ Example functional
                 'label': 'Per authority by price',
                 'field': 'pilot_authority__name',
                 'aggr_field': 'price',
+                'formatter': lambda v: "€ {}".format(v) if v else '-'
             }, {
                 'kind': 'choice_aggregate',
                 'label': 'Per status',
@@ -276,6 +284,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.5.1: Allow adding a formatter for the values
 * v.0.5.0: Add declarative API
 * v.0.4.0: Allow the aggregate function to run on a different field using ``aggr_field``
 * v.0.3.1: Fix small bug with ``choice_aggregate_with_null``

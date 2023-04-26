@@ -99,6 +99,12 @@ def get_stats(qs, cfg):
         else:
             raise NotImplementedError("unknown stat kind {}".format(c["kind"]))
 
+        formatter = c.get("formatter")
+        if formatter:
+            values = [(x[0], formatter(x[1])) for x in values]
+            if value:
+                value = formatter(value)
+
         stat = {
             "label": c["label"] if 'label' in c and c['label'] else c['field'],
             "values": values[:limit] if limit else values,
@@ -118,6 +124,7 @@ STAT_ALLOWED_FIELDS = {
     "limit",
     "buckets",
     "label",
+    "formatter",
 }
 
 
