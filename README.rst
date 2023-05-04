@@ -8,6 +8,11 @@ A django package for creating stats from a query.
 This package should be compatible with all 
 Django versions > 3.x
 
+
+
+.. image:: ./showme.png
+  :alt: How does it look
+
 Installation
 ============
 
