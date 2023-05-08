@@ -12,10 +12,10 @@ You can use something like this:
 
 .. code-block:: python
 
-class TravelStats(StatSet):
-    total = QueryAggregateSingleStat(label='Total')
-    amount = QueryAggregateSingleStat(label='Total amount', method='sum')
-    port__name = QueryAggregateStat(label='Per port', field='port__name')
+    class TravelStats(StatSet):
+        total = QueryAggregateSingleStat(label='Total')
+        amount = QueryAggregateSingleStat(label='Total amount', method='sum')
+        port__name = QueryAggregateStat(label='Per port', field='port__name')
     
 to get something like this:
 
