@@ -1,7 +1,8 @@
 .. image:: https://badge.fury.io/py/django-simple-stats.svg
     :target: https://badge.fury.io/py/django-simple-stats
-   
-![tox tests](https://github.com/spapas/django-simple-stats/actions/workflows/ghtox.yml/badge.svg)
+    
+.. image:: https://github.com/spapas/django-simple-stats/actions/workflows/ghtox.yml/badge.svg
+    :target: https://github.com/spapas/django-simple-stats/actions/workflows/ghtox.yml
     
 django-simple-stats
 -------------------
