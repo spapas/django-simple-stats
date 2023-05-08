@@ -8,7 +8,16 @@ A django package for creating stats from a query.
 This package should be compatible with all 
 Django versions > 3.x
 
+You can use something like this:
 
+.. code-block:: python
+
+class TravelStats(StatSet):
+    total = QueryAggregateSingleStat(label='Total')
+    amount = QueryAggregateSingleStat(label='Total amount', method='sum')
+    port__name = QueryAggregateStat(label='Per port', field='port__name')
+    
+to get something like this:
 
 .. image:: ./showme.png
   :alt: How does it look
