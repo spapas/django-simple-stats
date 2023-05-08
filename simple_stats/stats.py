@@ -41,7 +41,7 @@ def get_choice_label(choices, value):
 def get_stats(qs, cfg):
     r = []
     for c in cfg:
-        method = c['method'] if 'method' in c and c['method'] else 'count'
+        method = c["method"] if "method" in c and c["method"] else "count"
         aggr_function = get_aggregate_function(method)
         field = c["field"]
         aggr_field = c.get("aggr_field") or field
@@ -74,20 +74,17 @@ def get_stats(qs, cfg):
             values = [
                 (get_choice_label(c["choices"], x[field]), x["aggr"])
                 for x in qs.values(field)
-                .annotate(
-                    aggr=aggr_function(
-                        aggr_field if c["kind"] == "choice_aggregate" else "pk"
-                    )
-                )
+                .annotate(aggr=aggr_function(aggr_field))
                 .distinct()
                 .order_by(("-aggr"))
-                if c["kind"] == "choice_aggregate_with_null" or x.get(field) != None
+                if c["kind"] == "choice_aggregate_with_null"
+                or (x.get(field) is not None and x.get(field) != "")
             ]
 
         elif c["kind"] == "query_aggregate_buckets":
             buckets = c["buckets"]
             params = {
-                ">" + str(b): aggr_function("pk", filter=Q(**{field + "__gte": b}))
+                ">=" + str(b): aggr_function("pk", filter=Q(**{field + "__gte": b}))
                 for b in buckets
             }
 
@@ -106,7 +103,7 @@ def get_stats(qs, cfg):
                 value = formatter(value)
 
         stat = {
-            "label": c["label"] if 'label' in c and c['label'] else c['field'],
+            "label": c["label"] if "label" in c and c["label"] else c["field"],
             "values": values[:limit] if limit else values,
             "value": value,
         }

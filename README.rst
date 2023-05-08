@@ -289,6 +289,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.6.0: Add tests!
 * v.0.5.1: Allow adding a formatter for the values
 * v.0.5.0: Add declarative API
 * v.0.4.0: Allow the aggregate function to run on a different field using ``aggr_field``

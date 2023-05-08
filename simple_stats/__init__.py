@@ -6,4 +6,5 @@ from .stats import (
     QueryAggregateDateStat,
     QueryAggregateBucketsStat,
     ChoiceAggregateStat,
+    ChoiceAggregateNullStat,
 ) # noqa
