@@ -3,6 +3,7 @@ from simple_stats import (
     QueryAggregateSingleStat,
     QueryAggregateStat,
     QueryAggregateDateStat,
+    QueryAggregateExtractDateStat,
     QueryAggregateBucketsStat,
     ChoiceAggregateStat,
     ChoiceAggregateNullStat,
@@ -92,6 +93,12 @@ class PollStats(StatSet):
     vote_sum_per_year = QueryAggregateDateStat(
         method="sum", field="poll__pub_date", aggr_field="votes", what="year"
     )
+    vote_sum_per_month_year = QueryAggregateDateStat(
+        method="sum", field="poll__pub_date", aggr_field="votes", what="month"
+    )
+    vote_sum_per_month = QueryAggregateExtractDateStat(
+        method="sum", field="poll__pub_date", aggr_field="votes", what="month"
+    )
     vote_sum_per_kind = ChoiceAggregateStat(
         method="sum", field="kind", aggr_field="votes", choices=CHOICE_CHOICES
     )
@@ -107,7 +114,9 @@ POLL_STATS_RESULT = [
     {"label": "Choice count", "values": [], "value": 6},
     {"label": "Vote sum", "values": [], "value": 9},
     {"label": "Vote sum per poll", "values": [("Q2?", 5), ("Q1?", 4)], "value": None},
-    {"label": "vote_sum_per_year", "values": [(2022, 5), (2023, 4)], "value": None},
+    {"label": "vote_sum_per_year", "values": [('2022', 5), ('2023', 4)], "value": None},
+    {"label": "vote_sum_per_month_year", "values": [('2022-01', 5), ('2023-01', 4)], "value": None},
+    {"label": "vote_sum_per_month", "values": [(1, 9), ], "value": None},
     {"label": "vote_sum_per_kind", "values": [("A", 5), ("B", 2)], "value": None},
     {
         "label": "vote_sum_per_kind_null",
