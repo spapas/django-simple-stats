@@ -4,6 +4,8 @@ from .stats import (
     QueryAggregateStat,
     QueryAggregateSingleStat,
     QueryAggregateDateStat,
+    QueryAggregateDateTimeStat,
+    QueryAggregateExtractDateStat,
     QueryAggregateBucketsStat,
     ChoiceAggregateStat,
     ChoiceAggregateNullStat,

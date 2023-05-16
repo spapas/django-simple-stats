@@ -10,9 +10,7 @@ from django.db.models import (
     Case,
     Q,
 )
-from django.db.models.functions import (
-    Trunc,
-)
+from django.db.models.functions import Trunc, Extract
 import copy
 from collections import OrderedDict
 
@@ -57,14 +55,37 @@ def get_stats(qs, cfg):
                 if z.get(field) is not None
             ]
         elif c["kind"] in ("query_aggregate_date", "query_aggregate_datetime"):
+            def format_date(d, what):
+                if what == 'year':
+                    return d.strftime("%Y")
+                elif what == 'month':
+                    return d.strftime("%Y-%m")
+                elif what == 'day':
+                    return d.strftime("%Y-%m-%d")
+                elif what == 'hour':
+                    return d.strftime("%Y-%m-%d %H")
+                else:
+                    return d 
+
+
             output_field_cls = (
                 DateTimeField if c["kind"] == "query_aggregate_datetime" else DateField
             )
             values = [
-                (getattr(z["aggr"], c["what"]), z["aggr2"])
+                #(getattr(z["aggr"], c["what"]), z["aggr2"])
+                (format_date(z["aggr"], c['what']), z["aggr2"])
                 for z in qs.annotate(
                     aggr=Trunc(field, c["what"], output_field=output_field_cls())
                 )
+                .values("aggr")
+                .annotate(aggr2=aggr_function(aggr_field))
+                .order_by("aggr")
+            ]
+
+        elif c["kind"] in ("query_aggregate_extract_date"):
+            values = [
+                (z["aggr"], z["aggr2"])
+                for z in qs.annotate(aggr=Extract(field, c["what"]))
                 .values("aggr")
                 .annotate(aggr2=aggr_function(aggr_field))
                 .order_by("aggr")
@@ -157,6 +178,14 @@ class QueryAggregateSingleStat(StatBase):
 
 class QueryAggregateDateStat(StatBase):
     kind = "query_aggregate_date"
+
+
+class QueryAggregateDateTimeStat(StatBase):
+    kind = "query_aggregate_datetime"
+
+
+class QueryAggregateExtractDateStat(StatBase):
+    kind = "query_aggregate_extract_date"
 
 
 class QueryAggregateBucketsStat(StatBase):

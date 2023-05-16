@@ -52,6 +52,10 @@ Stat kinds
 
 * The ``query_aggregate_date`` / ``QueryAggregateDateStat`` is similar to the ``query_aggregate`` but will return the aggregates on a specific date field; use ``what`` to pass ``year``, ``month``, ``day``.
 
+* The ``query_aggregate_datetime`` / ``QueryAggregateDateTimeStat`` is similar to the ``query_aggregate_date`` but will return the aggregates on time also.
+
+* The ``query_aggregate_extract_date`` / ``QueryAggregateExtractDateStat`` is similar to ``query_aggregate_date`` but will use ``Extract`` for the date instead of ``Trunc``. This is useful if you want to group by the month/day/hour etc as a *specific* value, i.e this will group all rows of June on the same row while ``query_aggregate_date`` will differntiate between June 21 and June 22 and June 23.
+
 * Finally, the ``query_aggregate_buckets`` // ``QueryAggregateBucketsStat`` is used to create buckets of values. You'll pass the list of buckets and the query will  return the results that belong in each bucket. The stats module will run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price`` it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
 
 
@@ -301,6 +305,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.7.0: Add ``query_aggregate_extract_date`` and ``QueryAggregateExtractDateStat``
 * v.0.6.0: Add tests!
 * v.0.5.1: Allow adding a formatter for the values
 * v.0.5.0: Add declarative API
