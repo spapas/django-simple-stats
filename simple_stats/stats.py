@@ -54,10 +54,10 @@ def get_stats(qs, cfg):
             else:
                 annotation = {f"aggr_{aggr_field}": aggr_function(aggr_field)}
             values = [
-                [z.get(field)] + [z.get(k) for k in annotation.keys()]
+                tuple([z.get(field)] + [z.get(k) for k in annotation.keys()])
                 for z in qs.values(field)
                 .annotate(**annotation)
-                .order_by(field if list_aggr_field else f"aggr_{aggr_field}")
+                .order_by(field if list_aggr_field else f"-aggr_{aggr_field}")
                 if z.get(field) is not None
             ]
         elif c["kind"] in ("query_aggregate_date", "query_aggregate_datetime"):
@@ -83,14 +83,14 @@ def get_stats(qs, cfg):
                 DateTimeField if c["kind"] == "query_aggregate_datetime" else DateField
             )
             values = [
-                [format_date(z["aggr"], c["what"])]
-                + [z.get(k) for k in annotation.keys()]
+                tuple([format_date(z["aggr"], c["what"])]
+                + [z.get(k) for k in annotation.keys()])
                 for z in qs.annotate(
                     aggr=Trunc(field, c["what"], output_field=output_field_cls())
                 )
                 .values("aggr")
                 .annotate(**annotation)
-                .order_by(field if list_aggr_field else f"aggr_{aggr_field}")
+                .order_by(field if list_aggr_field else f"-aggr_{aggr_field}")
             ]
 
         elif c["kind"] in ("query_aggregate_extract_date"):

@@ -106,26 +106,56 @@ class PollStats(StatSet):
         method="sum", field="kind", aggr_field="votes", choices=CHOICE_CHOICES
     )
     vote_buckets = QueryAggregateBucketsStat(
-        field="votes",  buckets=[2, 1], 
+        field="votes",
+        buckets=[2, 1],
     )
 
 
 POLL_STATS_RESULT = [
-    {"label": "Choice count", "values": [], "value": 6},
-    {"label": "Vote sum", "values": [], "value": 9},
-    {"label": "Vote sum per poll", "values": [("Q2?", 5), ("Q1?", 4)], "value": None},
-    {"label": "vote_sum_per_year", "values": [('2022', 5), ('2023', 4)], "value": None},
-    {"label": "vote_sum_per_month_year", "values": [('2022-01', 5), ('2023-01', 4)], "value": None},
-    {"label": "vote_sum_per_month", "values": [(1, 9), ], "value": None},
-    {"label": "vote_sum_per_kind", "values": [("A", 5), ("B", 2)], "value": None},
+    {"headers": None, "label": "Choice count", "values": [], "value": 6},
+    {"headers": None, "label": "Vote sum", "values": [], "value": 9},
     {
-        "label": "vote_sum_per_kind_null",
-        "values": [('A', 5), ('B', 2), (None, 2)],
+        "headers": None,
+        "label": "Vote sum per poll",
+        "values": [("Q2?", 5), ("Q1?", 4)],
         "value": None,
     },
     {
+        "headers": None,
+        "label": "vote_sum_per_year",
+        "values": [("2022", 5), ("2023", 4)],
+        "value": None,
+    },
+    {
+        "headers": None,
+        "label": "vote_sum_per_month_year",
+        "values": [("2022-01", 5), ("2023-01", 4)],
+        "value": None,
+    },
+    {
+        "headers": None,
+        "label": "vote_sum_per_month",
+        "values": [
+            (1, 9),
+        ],
+        "value": None,
+    },
+    {
+        "headers": None,
+        "label": "vote_sum_per_kind",
+        "values": [("A", 5), ("B", 2)],
+        "value": None,
+    },
+    {
+        "headers": None,
+        "label": "vote_sum_per_kind_null",
+        "values": [("A", 5), ("B", 2), (None, 2)],
+        "value": None,
+    },
+    {
+        "headers": None,
         "label": "vote_buckets",
-        "values": [('>=2', 2), ('>=1', 6)],
+        "values": [(">=2", 2), (">=1", 6)],
         "value": None,
     },
 ]
