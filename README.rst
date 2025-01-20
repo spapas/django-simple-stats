@@ -86,8 +86,9 @@ The stats classes take the following initialization parameters:
 * what (optional): Only required for ``query_aggregate_date``, it is eithed ``year``, ``month``, ``day``
 * choices (optional): Only required for ``choice_aggregate`` and ``choice_aggregate_with_null``, it must be a django choices list 
 * buckets (optional): Only required for ``query_aggregate_buckets``. Must be a list from the biggest to the lowest value.
-* aggr_field (optional): This field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on.
+* aggr_field (optional): This field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on. It can also be a list to return multiple fields.
 * formatter (optional): A callback that can be used to format the value, it should get a value and return a rendered value (i.e ``lambda v: "${}".format(v)``)
+* headers (optional): A list of strings to be used as headers for the table.
 
 Please notice that if you don't pass the ``field`` parameter then the name of the attribute will be used (i.e. it will be 
 ``field=id`` in the example above).
@@ -305,6 +306,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.7.1: Allow aggr_field to be a list
 * v.0.7.0: Add ``query_aggregate_extract_date`` and ``QueryAggregateExtractDateStat``
 * v.0.6.0: Add tests!
 * v.0.5.1: Allow adding a formatter for the values

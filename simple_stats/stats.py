@@ -44,42 +44,53 @@ def get_stats(qs, cfg):
         field = c["field"]
         aggr_field = c.get("aggr_field") or field
         limit = c.get("limit")
+        headers = c.get("headers")
         values = []
+        list_aggr_field = isinstance(aggr_field, list)
         value = None
         if c["kind"] == "query_aggregate":
+            if list_aggr_field:
+                annotation = {f"aggr_{f}": aggr_function(f) for f in aggr_field}
+            else:
+                annotation = {f"aggr_{aggr_field}": aggr_function(aggr_field)}
             values = [
-                (z.get(field), z["aggr"])
+                [z.get(field)] + [z.get(k) for k in annotation.keys()]
                 for z in qs.values(field)
-                .annotate(aggr=aggr_function(aggr_field))
-                .order_by("-aggr")
+                .annotate(**annotation)
+                .order_by(field if list_aggr_field else f"aggr_{aggr_field}")
                 if z.get(field) is not None
             ]
         elif c["kind"] in ("query_aggregate_date", "query_aggregate_datetime"):
+
             def format_date(d, what):
-                if what == 'year':
+                if what == "year":
                     return d.strftime("%Y")
-                elif what == 'month':
+                elif what == "month":
                     return d.strftime("%Y-%m")
-                elif what == 'day':
+                elif what == "day":
                     return d.strftime("%Y-%m-%d")
-                elif what == 'hour':
+                elif what == "hour":
                     return d.strftime("%Y-%m-%d %H")
                 else:
-                    return d 
+                    return d
 
+            if list_aggr_field:
+                annotation = {f"aggr_{f}": aggr_function(f) for f in aggr_field}
+            else:
+                annotation = {f"aggr_{aggr_field}": aggr_function(aggr_field)}
 
             output_field_cls = (
                 DateTimeField if c["kind"] == "query_aggregate_datetime" else DateField
             )
             values = [
-                #(getattr(z["aggr"], c["what"]), z["aggr2"])
-                (format_date(z["aggr"], c['what']), z["aggr2"])
+                [format_date(z["aggr"], c["what"])]
+                + [z.get(k) for k in annotation.keys()]
                 for z in qs.annotate(
                     aggr=Trunc(field, c["what"], output_field=output_field_cls())
                 )
                 .values("aggr")
-                .annotate(aggr2=aggr_function(aggr_field))
-                .order_by("aggr")
+                .annotate(**annotation)
+                .order_by(field if list_aggr_field else f"aggr_{aggr_field}")
             ]
 
         elif c["kind"] in ("query_aggregate_extract_date"):
@@ -127,6 +138,7 @@ def get_stats(qs, cfg):
             "label": c["label"] if "label" in c and c["label"] else c["field"],
             "values": values[:limit] if limit else values,
             "value": value,
+            "headers": headers,
         }
         r.append(stat)
     return r
@@ -143,6 +155,7 @@ STAT_ALLOWED_FIELDS = {
     "buckets",
     "label",
     "formatter",
+    "headers",
 }
 
 
