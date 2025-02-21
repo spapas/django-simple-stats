@@ -39,6 +39,7 @@ def get_choice_label(choices, value):
 def get_stats(qs, cfg):
     r = []
     for c in cfg:
+        
         method = c["method"] if "method" in c and c["method"] else "count"
         aggr_function = get_aggregate_function(method)
         field = c["field"]
@@ -61,8 +62,9 @@ def get_stats(qs, cfg):
                 if z.get(field) is not None
             ]
         elif c["kind"] in ("query_aggregate_date", "query_aggregate_datetime"):
-
             def format_date(d, what):
+                if not d:
+                    return None
                 if what == "year":
                     return d.strftime("%Y")
                 elif what == "month":
@@ -91,9 +93,11 @@ def get_stats(qs, cfg):
                 .values("aggr")
                 .annotate(**annotation)
                 .order_by(field if list_aggr_field else f"-aggr_{aggr_field}")
+                
             ]
 
         elif c["kind"] in ("query_aggregate_extract_date"):
+            
             values = [
                 (z["aggr"], z["aggr2"])
                 for z in qs.annotate(aggr=Extract(field, c["what"]))
