@@ -119,12 +119,24 @@ def get_stats(qs, cfg):
 
         elif c["kind"] == "query_aggregate_buckets":
             buckets = c["buckets"]
-            params = {
-                ">=" + str(b): aggr_function("pk", filter=Q(**{field + "__gte": b}))
-                for b in buckets
-            }
+            field = c["field"]
+
+            params = {}
+            for b in buckets:
+                if isinstance(b, tuple) and len(b) == 2:
+                    label = f"{b[0]}-{b[1]}"
+                    filter_criteria = Q(**{
+                        f"{field}__gte": b[0],
+                        f"{field}__lte": b[1]
+                    })
+                else:
+                    label = f">={b}"
+                    filter_criteria = Q(**{f"{field}__gte": b})
+
+                params[label] = aggr_function("pk", filter=filter_criteria)
 
             values = [(z[0], z[1]) for z in qs.aggregate(**params).items()]
+
 
         elif c["kind"] == "query_aggregate_single":
             value = qs.aggregate(aggr=aggr_function(field))["aggr"]
