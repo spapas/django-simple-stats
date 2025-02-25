@@ -306,7 +306,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
-* v.0.7.3: Add range for buckets
+* v.0.7.4: Add range for buckets
 * v.0.7.3: Make sure it works if dates are null
 * v.0.7.2: Small fixes
 * v.0.7.1: Allow aggr_field to be a list
