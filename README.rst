@@ -56,7 +56,7 @@ Stat kinds
 
 * The ``query_aggregate_extract_date`` / ``QueryAggregateExtractDateStat`` is similar to ``query_aggregate_date`` but will use ``Extract`` for the date instead of ``Trunc``. This is useful if you want to group by the month/day/hour etc as a *specific* value, i.e this will group all rows of June on the same row while ``query_aggregate_date`` will differntiate between June 21 and June 22 and June 23.
 
-* Finally, the ``query_aggregate_buckets`` // ``QueryAggregateBucketsStat`` is used to create buckets of values. You'll pass the list of buckets and the query will  return the results that belong in each bucket. The stats module will run individual queries with ``field__gte`` for each value. So for example if you pass ``[100, 50, 10]`` and you have a field ``price`` it will run ``price__gte=100``, ``price__gte=50``, ``price__gte=10`` and return the results.
+* Finally, the ``query_aggregate_buckets`` // ``QueryAggregateBucketsStat`` is used to create buckets of values. You'll pass a list of buckets, and the query will return the results that belong in each bucket. The stats module will run individual queries using field__gte for single-value buckets and field__gte / field__lte for range buckets. For example, if you pass [100, 50, (10, 20)] for a field price, it will run price__gte=100, price__gte=50, and for the range bucket (10, 20), it will run price__gte=10 AND price__lte=20 and return the results accordingly.
 
 
 Usage
@@ -306,6 +306,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.7.3: Add range for buckets
 * v.0.7.3: Make sure it works if dates are null
 * v.0.7.2: Small fixes
 * v.0.7.1: Allow aggr_field to be a list
