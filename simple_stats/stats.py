@@ -41,7 +41,7 @@ def get_ordering_function(ordering_type):
             return values
             
         if ordering_type == 'value_desc':
-            return sorted(values, key=lambda x: x[1], reverse=True)
+            return values
         elif ordering_type == 'value_asc':
             return sorted(values, key=lambda x: x[1])
         elif ordering_type == 'label_desc':
