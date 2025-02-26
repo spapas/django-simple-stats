@@ -29,6 +29,27 @@ def get_aggregate_function(name):
     else:
         raise ValueError("unknown aggregate function")
 
+def get_ordering_function(ordering_type):
+    valid_orderings = ['value_desc', 'value_asc', 'label_desc', 'label_asc']
+    
+    if ordering_type not in valid_orderings:
+        raise ValueError(f"Unknown ordering type: '{ordering_type}'. "
+                         f"Valid options are: {', '.join(valid_orderings)}")
+    
+    def order_values(values):
+        if not values:
+            return values
+            
+        if ordering_type == 'value_desc':
+            return sorted(values, key=lambda x: x[1], reverse=True)
+        elif ordering_type == 'value_asc':
+            return sorted(values, key=lambda x: x[1])
+        elif ordering_type == 'label_desc':
+            return sorted(values, key=lambda x: x[0], reverse=True)
+        elif ordering_type == 'label_asc':
+            return sorted(values, key=lambda x: x[0])
+    
+    return order_values
 
 def get_choice_label(choices, value):
     for c in choices:
@@ -39,13 +60,14 @@ def get_choice_label(choices, value):
 def get_stats(qs, cfg):
     r = []
     for c in cfg:
-        
+                
         method = c["method"] if "method" in c and c["method"] else "count"
         aggr_function = get_aggregate_function(method)
         field = c["field"]
         aggr_field = c.get("aggr_field") or field
         limit = c.get("limit")
         headers = c.get("headers")
+        ordering = c.get("ordering", "value_desc")
         values = []
         list_aggr_field = isinstance(aggr_field, list)
         value = None
@@ -156,6 +178,15 @@ def get_stats(qs, cfg):
             "value": value,
             "headers": headers,
         }
+        
+        try:
+            ordering_function = get_ordering_function(ordering)
+            if values:
+                stat['values'] = ordering_function(values)
+        except ValueError as e:
+            print(f"Warning: {e}, using default ordering")
+            stat['values'] = sorted(values, key=lambda x: x[1], reverse=True)
+
         r.append(stat)
     return r
 
@@ -172,6 +203,7 @@ STAT_ALLOWED_FIELDS = {
     "label",
     "formatter",
     "headers",
+    "ordering",
 }
 
 
