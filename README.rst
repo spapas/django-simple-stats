@@ -89,6 +89,7 @@ The stats classes take the following initialization parameters:
 * aggr_field (optional): This field is optional and can be used for ``query_aggregate``, ``query_aggregate_date``, ``choice_aggregate`` and ``choice_aggregate_with_null``. It denotes a field that would run the aggregate function on. It can also be a list to return multiple fields.
 * formatter (optional): A callback that can be used to format the value, it should get a value and return a rendered value (i.e ``lambda v: "${}".format(v)``)
 * headers (optional): A list of strings to be used as headers for the table.
+* ordering (optional): The ordering method. Can be one of ``value_desc``, ``value_asc``, ``label_desc``, ``label_asc``. Default is value_desc .
 
 Please notice that if you don't pass the ``field`` parameter then the name of the attribute will be used (i.e. it will be 
 ``field=id`` in the example above).
@@ -306,6 +307,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.7.5: Add ordering for stats based on label or value
 * v.0.7.4: Add range for buckets
 * v.0.7.3: Make sure it works if dates are null
 * v.0.7.2: Small fixes
