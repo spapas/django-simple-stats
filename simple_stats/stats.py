@@ -59,6 +59,7 @@ def get_choice_label(choices, value):
 
 def get_stats(qs, cfg):
     r = []
+
     for c in cfg:
                 
         method = c["method"] if "method" in c and c["method"] else "count"
@@ -177,6 +178,7 @@ def get_stats(qs, cfg):
             "values": values[:limit] if limit else values,
             "value": value,
             "headers": headers,
+            "name": c["name"],
         }
         
         try:

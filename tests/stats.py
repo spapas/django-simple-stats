@@ -112,25 +112,28 @@ class PollStats(StatSet):
 
 
 POLL_STATS_RESULT = [
-    {"headers": None, "label": "Choice count", "values": [], "value": 6},
-    {"headers": None, "label": "Vote sum", "values": [], "value": 9},
+    {"headers": None, "label": "Choice count", "values": [], "value": 6, "name": "id"},
+    {"headers": None, "label": "Vote sum", "values": [], "value": 9, "name": "vote_sum"},
     {
         "headers": None,
         "label": "Vote sum per poll",
         "values": [("Q2?", 5), ("Q1?", 4)],
         "value": None,
+        "name": "vote_sum_per_poll",
     },
     {
         "headers": None,
         "label": "vote_sum_per_year",
         "values": [("2022", 5), ("2023", 4)],
         "value": None,
+        "name": "vote_sum_per_year",
     },
     {
         "headers": None,
         "label": "vote_sum_per_month_year",
         "values": [("2022-01", 5), ("2023-01", 4)],
         "value": None,
+        "name": "vote_sum_per_month_year",
     },
     {
         "headers": None,
@@ -139,23 +142,27 @@ POLL_STATS_RESULT = [
             (1, 9),
         ],
         "value": None,
+        "name": "vote_sum_per_month",
     },
     {
         "headers": None,
         "label": "vote_sum_per_kind",
         "values": [("A", 5), ("B", 2)],
         "value": None,
+        "name": "vote_sum_per_kind",
     },
     {
         "headers": None,
         "label": "vote_sum_per_kind_null",
         "values": [("A", 5), ("B", 2), (None, 2)],
         "value": None,
+        "name": "vote_sum_per_kind_null",
     },
     {
         "headers": None,
         "label": "vote_buckets",
         "values": [(">=2", 2), (">=1", 6)],
         "value": None,
+        "name": "vote_buckets",
     },
 ]

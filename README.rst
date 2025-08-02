@@ -307,6 +307,7 @@ Now you can call it like this from your view:
 Changelog
 =========
 
+* v.0.7.6: Add a name attribute to the stats
 * v.0.7.5: Add ordering for stats based on label or value
 * v.0.7.4: Add range for buckets
 * v.0.7.3: Make sure it works if dates are null
