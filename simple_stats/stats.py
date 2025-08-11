@@ -178,7 +178,7 @@ def get_stats(qs, cfg):
             "values": values[:limit] if limit else values,
             "value": value,
             "headers": headers,
-            "name": c["name"],
+            "name": c.get("name") or c["field"],
         }
         
         try:
